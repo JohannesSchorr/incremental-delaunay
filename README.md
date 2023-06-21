@@ -17,3 +17,8 @@ If the point is inside the circum-circle a flip of the separating edge leads to 
 ``incremental_delaunay`` implements two approaches of incremental Delaunay triangulations: 
 - starting with a bounding structure containing all points, that is removed afterwards.
 - starting with three points of the set of points that are not lying on one line
+
+## Development history
+
+Within [m-n-kappa](https://johannesschorr.github.io/M-N-Kappa/) I looked for a way to interpolated between a set of points.
+As a [bilinear Interpolation](https://en.wikipedia.org/wiki/Bilinear_interpolation) did not work the way as expected.
