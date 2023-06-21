@@ -1,4 +1,4 @@
-from triangulation import (
+from .triangulation import (
     DelaunayTriangulationIncremental,
     DelaunayTriangulationIncrementalWithBoundingBox,
 )
