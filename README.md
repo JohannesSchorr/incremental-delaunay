@@ -60,6 +60,64 @@ for triangle in delaunay.triangles:
         break
 ```
 
+### Plotting the triangles
+
+For plotting the triangles in the triangulated mesh you may use the following script using [matplotlib](https://matplotlib.org/) as follows.
+
+```python
+import matplotlib.pyplot as plt
+
+def plot_mesh(
+    triangles: set[Triangle] | list[Triangle], 
+    halfplanes: set[Triangle] | list[Triangle] = [], 
+    points:list[tuple[float, float]] = None, 
+    max_x=None
+): 
+    fig, ax = plt.subplots()
+    if not isinstance(triangles, set): 
+        triangles = set(Triangles)
+    if not isinstance(halfplanes, set)
+        halfplanes = set(halfplanes)
+    triangles = triangles.update(halfplanes)
+    for triangle in triangles: 
+        triangle_points = list(triangle.points)
+        triangle_points.append(triangle_points[0])
+        x = [values[0] for values in triangle_points]
+        y = [values[1] for values in triangle_points]
+        if triangle in halfplanes: 
+            line_style = "dashed"
+            color = 'gray'
+        else: 
+            line_style = "solid"
+            color = 'black'
+        ax.plot(x, y, linewidth=.5, linestyle=line_style, color=color)
+    if points is not None: 
+        x = [point[0] for point in points]
+        y = [point[1] for point in points]
+        ax.scatter(x, y, marker='+')
+    if not max_x is None: 
+        ax.axes.set_xlim(0, max_x)
+```
+
+To plot the mesh you only have to pass your triangles to the function. 
+
+```python
+plot_mesh(
+    triangles=delaunay.triangles, 
+    points=delaunay.points
+    )
+```
+
+In case you use ``DelaunayTriangulationIncremental`` for triangulation you may also pass the halfplanes as follows. 
+
+```python
+plot_mesh(
+    triangles=delaunay.triangles, 
+    halfplanes=delaunay.halfplanes,
+    points=delaunay.points
+    )
+```
+
 ## Development history
 
 Within [m-n-kappa](https://johannesschorr.github.io/M-N-Kappa/) I looked for a way to interpolate values in a set of points.
