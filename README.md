@@ -70,8 +70,7 @@ import matplotlib.pyplot as plt
 def plot_mesh(
     triangles: set[Triangle] | list[Triangle], 
     halfplanes: set[Triangle] | list[Triangle] = [], 
-    points:list[tuple[float, float]] = None, 
-    max_x=None
+    points:list[tuple[float, float]] = None,
 ): 
     fig, ax = plt.subplots()
     if not isinstance(triangles, set): 
@@ -95,8 +94,6 @@ def plot_mesh(
         x = [point[0] for point in points]
         y = [point[1] for point in points]
         ax.scatter(x, y, marker='+')
-    if not max_x is None: 
-        ax.axes.set_xlim(0, max_x)
 ```
 
 To plot the mesh you only have to pass your triangles to the function. 
@@ -117,6 +114,67 @@ plot_mesh(
     points=delaunay.points
     )
 ```
+
+## Examples
+
+The following set of points may be triangulated. 
+
+```python
+points = [
+    (0.07092164560897417, 0.0),
+    (0.017112718875810836, 0.0),
+    (0.04368081778528715, 0.0),
+    (0.0019914537568356126, 1599523.0516000006),
+    (0.0557740946375556, 0.0),
+    (-0.0, -0.0),
+    (0.0007794542880783402, 626052.8855962341),
+    (0.0006552638255870223, 0.0),
+    (0.006952534477383593, 0.0),
+    (0.0, 2186719.193349065),
+    (0.08556008688854429, 0.0),
+    (0.0, 2161363.834659677),
+    (0.0, 1029329.0652537956),
+    (0.0, 2196771.511936398),
+    (0.0, 1568852.9374282872),
+]
+```
+
+For triangulation you only have to pass the created ``points``-list to ``DelaunayTriangulationIncrementalWithBoundingBox`` or ``DelaunayTriangulationIncremental``.
+
+```python
+from incremental_delaunay import DelaunayTriangulationIncremental
+delaunay = DelaunayTriangulationIncremental(points)
+```
+
+Using ``plot_mesh`` plots you the triangles and the halfplanes. 
+The blue ``+``-signs indicate the positions of the ``points``. 
+The dashed lines show the halfplanes, whereas the solid lines show the triangles.
+
+```python
+plot_mesh(
+    triangles=delaunay.triangles, 
+    halfplanes=delaunay.halfplanes, 
+    points=points
+)
+```
+![plot-triangles](docs/images/plot_triangles_and_halfplanes.png)
+
+
+If you only want to show the triangles you must skip passing the halfplanes to ``plot_mesh``.
+This produces the same figure as above, but without halfplanes (dashed triangles on the border).
+
+```python
+plot_mesh(
+    triangles=delaunay.triangles, 
+    # halfplanes=delaunay.halfplanes, 
+    points=points
+)
+```
+![plot-triangles](docs/images/plot_triangles.png)
+
+As shown in the plotted figures the points are the corners of the triangles.
+There is no point without at least one triangle and no triangle with at least three corner points. 
+
 
 ## Development history
 
