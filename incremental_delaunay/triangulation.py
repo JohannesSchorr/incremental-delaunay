@@ -339,7 +339,7 @@ class DelaunayTriangulationIncrementalWithBoundingBox(Delaunay):
 
     @staticmethod
     def _sort_points_along_edges(
-        border_edges: list[tuple[tuple]],
+        border_edges: list[Straight],
     ) -> list[tuple[float, float]]:
         """
         sort the points of the ``border_edges`` around the mesh
@@ -353,7 +353,7 @@ class DelaunayTriangulationIncrementalWithBoundingBox(Delaunay):
 
         Parameters
         ----------
-        border_edges: list[tuple[tuple]]
+        border_edges: list[Straight]
             all edges around the computed mesh
 
         Returns
@@ -361,31 +361,31 @@ class DelaunayTriangulationIncrementalWithBoundingBox(Delaunay):
         list[tuple[float, float]]
             all points of the edges sorted next to each other
         """
-        sorted_points = [border_edges[0][0], border_edges[0][1]]
+        sorted_points = [border_edges[0].point_1, border_edges[0].point_2]
         for _ in range(len(border_edges) + 1):
             for border_edge in border_edges:
                 if (
-                    border_edge[0] == sorted_points[-1]
-                    and border_edge[1] != sorted_points[-2]
+                    border_edge.point_1 == sorted_points[-1]
+                    and border_edge.point_1 != sorted_points[-2]
                 ):
-                    sorted_points.append(border_edge[1])
+                    sorted_points.append(border_edge.point_2)
                     break
                 elif (
-                    border_edge[1] == sorted_points[-1]
-                    and border_edge[0] != sorted_points[-2]
+                    border_edge.point_2 == sorted_points[-1]
+                    and border_edge.point_1 != sorted_points[-2]
                 ):
-                    sorted_points.append(border_edge[0])
+                    sorted_points.append(border_edge.point_1)
                     break
 
         for border_edge in border_edges:
             edge_exists = False
             for index in range(len(sorted_points) - 1):
                 if (
-                    border_edge[0] == sorted_points[index]
-                    and border_edge[1] == sorted_points[index + 1]
+                    border_edge.point_1 == sorted_points[index]
+                    and border_edge.point_2 == sorted_points[index + 1]
                 ) or (
-                    border_edge[1] == sorted_points[index]
-                    and border_edge[0] == sorted_points[index + 1]
+                    border_edge.point_2 == sorted_points[index]
+                    and border_edge.point_1 == sorted_points[index + 1]
                 ):
                     edge_exists = True
                     break  # edge exist in sorted points
@@ -785,7 +785,6 @@ class DelaunayTriangulationIncremental(Delaunay):
         """
         points = self._find_non_colinear_points()
         new_triangle = Triangle(points[0], points[1], points[2])
-        self._triangles.add(new_triangle)
         self._points.update(set(points))
         new_triangles = {new_triangle}
         for edge in new_triangle.edges:
