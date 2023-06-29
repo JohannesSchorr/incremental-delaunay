@@ -230,20 +230,23 @@ class Straight:
 
     def compute_x(self, y: float) -> float:
         """compute ``x`` from ``y``"""
-        return (y - self.intercept) / self.slope
+        x = (y - self.intercept) / self.slope
+        return x
 
     def compute_y(self, x: float) -> float:
         """compute ``y`` from ``x``"""
-        return self.slope * x + self.intercept
+        y = self.slope * x + self.intercept
+        return y
 
     def normal_through(self, point: tuple[float, float]) -> Self:
         """find the normal to this Straight through the given ``point``"""
         if self.normal_slope == float("inf"):
             return Straight(point, (point[0], point[1] + 1.0))
         else:
-            c = point[1] - self.normal_slope * point[0]
-            x_2 = point[0] + 1.0
-            point_2 = x_2, x_2 * self.normal_slope + c
+            interception = point[1] - self.normal_slope * point[0]
+            x_2 = point[0] + self.y_difference
+            y_2 = x_2 * self.normal_slope + interception
+            point_2 = x_2, y_2
             return Straight(point, point_2)
 
     def normal_through_middle(self) -> Self:
