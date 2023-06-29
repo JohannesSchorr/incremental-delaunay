@@ -1,3 +1,6 @@
+# Version 0.1.1
+
+Fixed some issues with the incremental delaunay with half-planes as borders.
 
 # Version 0.1.0
 
