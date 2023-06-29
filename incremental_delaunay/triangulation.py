@@ -674,7 +674,7 @@ class DelaunayTriangulationIncremental(Delaunay):
         above given for-loop returns ``None``.
         """
         super().__init__(points)
-        self._halfplanes = set()
+        self._halfplanes: set[Halfplane] = set()
         self._triangulation()
         self._compare_input_and_triangle_points()
 
@@ -714,7 +714,6 @@ class DelaunayTriangulationIncremental(Delaunay):
         if point in self.points:
             return
         self._points.add(point)
-        old_triangles = self.triangles.copy()
         added_triangles = set()
         remove = set()
         for triangle in self._all_triangles():
@@ -726,48 +725,16 @@ class DelaunayTriangulationIncremental(Delaunay):
                 break
         self._replace_triangles(added_triangles, remove)
 
-        added_triangles = self.triangles.difference(old_triangles)
-        for triangle in added_triangles:
-            if isinstance(triangle, Triangle):
-                self._add_triangle_at_concave_hull(triangle)
-                break
+        # add triangles where concave hull is available
+        while self._add_triangle_at_concave_hull():
+            pass
+
+        # correct triangles if delaunay-condition is not fulfilled
         self._correct_triangles()
-
-    def _neighboring_halfplanes(
-        self, halfplane: Halfplane | Triangle
-    ) -> set[Halfplane]:
-        """find the neighbouring half-plane"""
-        return {
-            iter_halfplane
-            for iter_halfplane in self._halfplanes
-            if iter_halfplane.is_neighbour(halfplane)
-        }
-
-    def _neighboring_halfplanes_to(self, triangle: Triangle) -> set[Halfplane]:
-        """
-        get the half-planes that share an edge with this triangle
-
-        Parameters
-        ----------
-        triangle : Triangle
-            in the neighbourhood of this triangle is looked for
-            a half-plane
-
-        Returns
-        -------
-        set[Halfplane]
-            half-planes that share an edge with the given ``triangle``
-        """
-        return {
-            halfplane
-            for halfplane in self._halfplanes
-            if halfplane.edge_ab in triangle.edges
-        }
 
     def _add_triangle_at_concave_hull(
         self,
-        triangle: Triangle,
-    ) -> None:
+    ) -> bool:
         """
         add a triangle and corresponding half-planes where
         the outside border is concave
@@ -775,24 +742,17 @@ class DelaunayTriangulationIncremental(Delaunay):
         'concave' means the border of the mesh is curved inward.
         The opposite of concave is convex.
 
-        Parameters
-        ----------
-        triangle: Triangle
-            in the neighbourhood of this triangle a concave hull is searched
-            and adapted if needed
-
         Returns
         -------
-        None
+        bool
+            ``True`` if convex triangle has been added.
+            ``False`` if no triangle has been added.
         """
-        neighbouring_halfplanes = self._neighboring_halfplanes_to(triangle)
-        for halfplane_1 in neighbouring_halfplanes:
-            # find neighbouring halfplane of the halfplane
+        for halfplane_1 in self._halfplanes:
             for halfplane_2 in self._halfplanes:
-                if (
-                    halfplane_2 not in neighbouring_halfplanes
-                    and halfplane_1.is_neighbour(halfplane_2)
-                ):
+                if halfplane_1.is_neighbour(
+                    halfplane_2
+                ) and halfplane_1.is_on_same_side_like(halfplane_2):
                     not_shared_points = halfplane_1.edge_ab.not_shared_points(
                         halfplane_2.edge_ab
                     )
@@ -804,17 +764,19 @@ class DelaunayTriangulationIncremental(Delaunay):
                             not_shared_points[0],
                             not_shared_points[1],
                         )
-                        # add corresponding halfplane
+
+                        # add corresponding Halfplane
                         convex_halfplane = Halfplane(
                             not_shared_points[0],
                             not_shared_points[1],
                             convex_triangle.outside_point(line),
                         )
                         self._replace_triangles(
-                            {convex_triangle, convex_halfplane},
-                            {halfplane_1, halfplane_2},
+                            add={convex_triangle, convex_halfplane},
+                            remove={halfplane_1, halfplane_2},
                         )
-                    break
+                        return True
+        return False
 
     def _add_first_triangle(self) -> None:
         """
@@ -825,10 +787,12 @@ class DelaunayTriangulationIncremental(Delaunay):
         new_triangle = Triangle(points[0], points[1], points[2])
         self._triangles.add(new_triangle)
         self._points.update(set(points))
+        new_triangles = {new_triangle}
         for edge in new_triangle.edges:
-            self._halfplanes.add(
+            new_triangles.add(
                 Halfplane(edge.point_1, edge.point_2, new_triangle.outside_point(edge))
             )
+        self._replace_triangles(add=new_triangles, remove=set())
 
     def _find_non_colinear_points(
         self,
@@ -872,8 +836,13 @@ class DelaunayTriangulationIncremental(Delaunay):
         return all_triangles
 
     def _replace_triangles(
-        self, add: set[MetaTriangle], remove: set[MetaTriangle]
+        self,
+        add: set[Triangle | Halfplane],
+        remove: set[Triangle | Halfplane],
     ) -> None:
+        """
+        replace the ``remove`` instances with the ``add`` instances
+        """
         for triangle in remove:
             if isinstance(triangle, Triangle):
                 self._triangles.remove(triangle)
