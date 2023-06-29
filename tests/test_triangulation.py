@@ -330,5 +330,33 @@ class TestDelaunayTriangulationIncrementalStrainDifferenceLongitudinalShearForce
         self.assertEqual(delaunay._triangle_points(), set(self.points))
 
 
+class TestDelaunayTriangulationIncrementalMomentStrainDifference(TestCase):
+    def setUp(self) -> None:
+        self.maxDiff = None
+        self.points = [
+            (255154047.3662959, 0.006952534477383593),
+            (268294989.4032318, 0.0557740946375556),
+            (0.0, -0.0),
+            (270350606.2062383, 0.07092164560897417),
+            (479333253.2481214, 0.0),
+            (577987747.8516432, 0.0),
+            (391800487.92683905, 0.0019914537568356126),
+            (347183449.2821381, 0.0),
+            (272371565.9662828, 0.08556008688854429),
+            (561217622.8217927, 0.0),
+            (153350719.41212064, 0.0007794542880783402),
+            (48766834.57919085, 0.0006552638255870223),
+            (261788120.5343429, 0.017112718875810836),
+            (571503418.0941486, 0.0),
+            (266552138.76344815, 0.04368081778528715),
+        ]
+
+    def test_delaunay(self):
+        delaunay = DelaunayTriangulationIncremental(self.points)
+        for triangle in delaunay.triangles:
+            print(f"{triangle.points}, ")
+        self.assertEqual(delaunay._triangle_points(), set(self.points))
+
+
 if __name__ == "__main__":
     main()
