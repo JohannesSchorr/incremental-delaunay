@@ -57,7 +57,7 @@ def are_points_co_linear(
 class PointPosition(Enum):
 
     """
-    Classifier for position of a point compared to a 
+    Classifier for position of a point compared to a
     :py:class:`~incremental_delaunay.elements.Triangle`
 
     .. versionadded:: 0.1.0
@@ -89,6 +89,12 @@ class Straight:
     point_1: tuple[float, float]
     point_2: tuple[float, float]
 
+    def __repr__(self):
+        return f"Straight(point_1={self.point_1}, point_2={self.point_2})"
+
+    def __hash__(self):
+        return hash(self.__repr__())
+
     def __eq__(self, other) -> bool:
         if not isinstance(other, Straight):
             return False
@@ -98,6 +104,24 @@ class Straight:
             return True
         else:
             return False
+
+    @cached_property
+    def y_difference(self) -> float:
+        """
+        difference of points in y-direction (vertical)
+
+        .. versionadded:: 0.1.1
+        """
+        return abs(self.point_2[1] - self.point_1[1])
+
+    @cached_property
+    def x_difference(self) -> float:
+        """
+        difference of points in x-direction (horizontal)
+
+        .. versionadded:: 0.1.1
+        """
+        return abs(self.point_2[0] - self.point_1[0])
 
     @cached_property
     def points(self) -> tuple[tuple[float, float], tuple[float, float]]:
@@ -171,8 +195,11 @@ class Straight:
 
     def is_on_line(self, point: tuple[float, float]):
         """check if point is on this straight"""
-        if self.slope == float("inf") and point[0] == self.point_1[0]:
-            return True
+        if self.slope == float("inf"):
+            if point[0] == self.point_1[0]:
+                return True
+            else:
+                return False
         elif self.compute_y(point[0]) == point[1]:
             return True
         else:
@@ -228,9 +255,10 @@ class Straight:
         if self.slope == float("inf"):
             return Straight(point, (point[0], point[1] + 1.0))
         else:
-            c = point[1] - self.slope * point[0]
-            x_2 = point[0] + 1.0
-            point_2 = x_2, x_2 * self.slope + c
+            interception = point[1] - self.slope * point[0]
+            x_2 = point[0] + self.x_difference
+            y_2 = x_2 * self.slope + interception
+            point_2 = x_2, y_2
             return Straight(point, point_2)
 
     def difference_to(self, point: tuple[float, float]) -> float:
@@ -257,21 +285,18 @@ class Straight:
         else:
             return point[1] - self.compute_y(point[0])
 
-    def not_shared_points(self, straight: Self) -> tuple[tuple[float, float], ...]:
-        not_shared = set()
-        for point in self.points:
-            if point not in straight.points:
-                not_shared.add(point)
-        for point in straight.points:
-            if point not in self.points:
-                not_shared.add(point)
-        return tuple(not_shared)
+    def not_shared_points(self, other: Self) -> tuple[tuple[float, float], ...]:
+        """return points that are not shared between this and the ``other`` straight"""
+        points = set(self.points)
+        points = points.symmetric_difference(set(other.points))
+        return tuple(points)
 
-    def shared_point(self, straight: Self) -> tuple[float, float]:
-        if straight == self:
+    def shared_point(self, other: Self) -> tuple[float, float]:
+        """return the point this straight shares with the ``other``"""
+        if other == self:
             raise ValueError
         for point in self.points:
-            if point in straight.points:
+            if point in other.points:
                 return point
 
 
@@ -622,6 +647,30 @@ class MetaTriangle(ABC):
                 if point not in shared_points
             )
         )
+
+    def is_neighbour(self, other: Self) -> bool:
+        """
+        determine if this instance and the other instance are direct
+        neighbours
+
+        .. versionadded:: 0.1.1
+
+        Neighbourhood is defined by sharing two points
+
+        Parameters
+        ----------
+        other : MetaTriangle
+            other triangle to check for neighbourhood
+
+        Returns
+        -------
+        bool
+            ``True`` if this and the ``other`` triangle are neighbours
+        """
+        if len(self.shared_points(other)) == 2:
+            return True
+        else:
+            return False
 
 
 class Triangle(MetaTriangle):
@@ -1141,14 +1190,15 @@ class Triangle(MetaTriangle):
         tuple[float, float]
             point outside the triangle
         """
-        normal_through_centroid = edge.normal_through(self.centroid)
-        cross_point = edge.point_crossing_with(normal_through_centroid)
-        normal = Straight(self.centroid, cross_point)
-        vector = normal.vector
-        return (
-            self.centroid[0] + factor * vector[0],
-            self.centroid[1] + factor * vector[1],
+        if edge not in self.edges:
+            raise AttributeError
+        opposite_point = self.not_shared_point(edge)
+        line = Straight(opposite_point, edge.middle_point)
+        outside_point = (
+            opposite_point[0] + factor * line.vector[0],
+            opposite_point[1] + factor * line.vector[1],
         )
+        return outside_point
 
 
 class Halfplane(MetaTriangle):
@@ -1393,3 +1443,30 @@ class Halfplane(MetaTriangle):
             )
             ** 0.5
         )
+
+    def is_on_same_side_like(self, other: Self) -> bool:
+        """
+        check if this and the ``other`` half-plane are on the same side.
+
+        .. versionadded:: 0.1.1
+
+        It is checked if ``point_c`` lies on the other half-plane and
+        if the other ``point_c`` lies on this half-plane.
+
+        Parameters
+        ----------
+        other : Halfplane
+            other half-plane to check for the side
+
+        Returns
+        -------
+        bool
+            ``True`` if both are on the same side
+        """
+        if (
+            self._position_of(other.point_c) == PointPosition.INSIDE
+            and other._position_of(self.point_c) == PointPosition.INSIDE
+        ):
+            return True
+        else:
+            return False
