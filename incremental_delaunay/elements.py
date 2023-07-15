@@ -1211,7 +1211,6 @@ class Triangle(MetaTriangle):
     def outside_point(
         self,
         edge: Straight,
-        factor: float = 1.5,
     ) -> tuple[float, float]:
         """
         determine a point outside the triangle on the side of the given ``edge``
@@ -1220,23 +1219,37 @@ class Triangle(MetaTriangle):
         ----------
         edge : tuple[tuple[float, float], tuple[float, float]]
             edge of the triangle the point must be near of
-        factor : float
-            Ratio-factor the point must be outside the triangle (Default: 1.1).
-            In case the factor is smaller 1.0 the point is inside the triangle.
 
         Returns
         -------
         tuple[float, float]
-            point outside the triangle
         """
-        if edge not in self.edges:
-            raise AttributeError
+        point_1, point_2 = edge.mid_normal_circle_intersections()
         opposite_point = self.not_shared_point(edge)
-        line = Straight(opposite_point, edge.middle_point)
-        outside_point = (
-            opposite_point[0] + factor * line.vector[0],
-            opposite_point[1] + factor * line.vector[1],
-        )
+        if edge.difference_to(point_1) * edge.difference_to(opposite_point) < 0.0:
+            outside_point = point_1
+        elif edge.difference_to(point_2) * edge.difference_to(opposite_point) < 0.0:
+            outside_point = point_2
+        else:
+            raise ValueError
+        if edge.slope != 0.0 and edge.slope != float("inf"):
+            line = Straight(edge.middle_point, outside_point)
+            x_factors = [
+                (point[0] - edge.middle_point[0]) / line.vector[0]
+                for point in edge.points
+            ]
+            y_factors = [
+                (point[1] - edge.middle_point[1]) / line.vector[1]
+                for point in edge.points
+            ]
+            positive_factors = [
+                factor for factor in x_factors + y_factors if factor > 0.0
+            ]
+            factor = min(positive_factors)
+            outside_point = (
+                edge.middle_point[0] + factor * line.vector[0],
+                edge.middle_point[1] + factor * line.vector[1],
+            )
         return outside_point
 
 
