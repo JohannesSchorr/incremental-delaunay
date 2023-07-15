@@ -309,6 +309,8 @@ class Straight:
         compute the intersections of the normal through the middle-point
         and the circum-circle through the given points
 
+        .. versionadded:: 0.1.2
+
         Returns
         -------
         tuple[tuple[float, float], tuple[float, float]]
