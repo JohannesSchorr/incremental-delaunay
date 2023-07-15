@@ -1525,8 +1525,8 @@ class Halfplane(MetaTriangle):
             ``True`` if both are on the same side
         """
         if (
-            self._position_of(other.point_c) == PointPosition.INSIDE
-            and other._position_of(self.point_c) == PointPosition.INSIDE
+            self._position_of(other.not_shared_point(self)) == PointPosition.INSIDE
+            and other._position_of(self.not_shared_point(other)) == PointPosition.INSIDE
         ):
             return True
         else:
