@@ -302,6 +302,40 @@ class Straight:
             if point in other.points:
                 return point
 
+    def mid_normal_circle_intersections(
+        self,
+    ) -> tuple[tuple[float, float], tuple[float, float]]:
+        """
+        compute the intersections of the normal through the middle-point
+        and the circum-circle through the given points
+
+        Returns
+        -------
+        tuple[tuple[float, float], tuple[float, float]]
+            two intersections between the normal through the middle-point
+            and the circum-circle
+        """
+        r = 0.5 * self.length
+        x_m, y_m = self.middle_point
+        slope = self.normal_through_middle().slope
+        if slope == float("inf"):
+            point_1 = x_m, y_m + r
+            point_2 = x_m, y_m - r
+        else:
+            intercept = self.normal_through_middle().intercept
+            a = 1.0 + slope**2
+            b = -2.0 * x_m + 2.0 * (intercept - y_m) * slope
+            p = b / a
+            c = (x_m**2.0 + (intercept - y_m) ** 2.0 - r**2.0) / a
+            q = c / a
+            x_1 = -p / 2.0 + ((p / 2.0) ** 2.0 - q) ** 0.5
+            y_1 = self.normal_through_middle().compute_y(x_1)
+            point_1 = x_1, y_1
+            x_2 = -p / 2.0 - ((p / 2.0) ** 2.0 - q) ** 0.5
+            y_2 = self.normal_through_middle().compute_y(x_2)
+            point_2 = x_2, y_2
+        return point_1, point_2
+
 
 class MetaTriangle(ABC):
 
