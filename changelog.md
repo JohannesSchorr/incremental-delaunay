@@ -1,11 +1,13 @@
 # Version 0.1.2
 
 ## Fixed
+
 Fixed some issues with the incremental delaunay with half-planes as borders.
 Creates now 'better' half-planes and detects better concave hulls and adds convex triangles 
 at this positions.
 
 ## Added
+
 - more tests for the incremental Delaunay method with half-planes as borders
 - [To do list](https://github.com/JohannesSchorr/incremental-delaunay/blob/master/todo.md)
 
