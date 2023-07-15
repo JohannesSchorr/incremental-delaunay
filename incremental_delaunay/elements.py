@@ -131,7 +131,7 @@ class Straight:
     @cached_property
     def vector(self) -> tuple[float, float]:
         """vector of the line"""
-        return self.point_2[0] - self.point_1[0], self.point_2[1] - self.point_1[1]
+        return (self.point_2[0] - self.point_1[0]), (self.point_2[1] - self.point_1[1])
 
     @cached_property
     def slope(self) -> float:
@@ -189,7 +189,7 @@ class Straight:
             x_point = other.point_1[0]
             y_point = self.compute_y(x_point)
         else:
-            x_point = (other.intercept - self.intercept) / (self.slope - other.slope)
+            x_point = (self.intercept - other.intercept) / (other.slope - self.slope)
             y_point = self.compute_y(x_point)
         return x_point, y_point
 
@@ -243,9 +243,11 @@ class Straight:
         if self.normal_slope == float("inf"):
             return Straight(point, (point[0], point[1] + 1.0))
         else:
+            # y = m*x + c => c = y - m*x
             interception = point[1] - self.normal_slope * point[0]
             x_2 = point[0] + self.y_difference
-            y_2 = x_2 * self.normal_slope + interception
+            # y = m*x + c
+            y_2 = self.normal_slope * x_2 + interception
             point_2 = x_2, y_2
             return Straight(point, point_2)
 
@@ -258,11 +260,15 @@ class Straight:
         if self.slope == float("inf"):
             return Straight(point, (point[0], point[1] + 1.0))
         else:
-            interception = point[1] - self.slope * point[0]
-            x_2 = point[0] + self.x_difference
+            x_1, y_1 = point
+            # y = m*x + c => c = y - m*x
+            interception = y_1 - self.slope * x_1
+            x_2 = x_1 + self.x_difference
+            # y = m*x + c
             y_2 = x_2 * self.slope + interception
             point_2 = x_2, y_2
-            return Straight(point, point_2)
+            line = Straight(point, point_2)
+            return line
 
     def difference_to(self, point: tuple[float, float]) -> float:
         """
@@ -1268,7 +1274,6 @@ class Halfplane(MetaTriangle):
         point_c: tuple[float, float],
     ):
         super().__init__(point_a, point_b, point_c)
-        self._point_c = self._adjust_point_c()
 
     def __repr__(self):
         return (
@@ -1277,11 +1282,6 @@ class Halfplane(MetaTriangle):
             f"point_b={self.point_b}, "
             f"point_c={self.point_c})"
         )
-
-    def _adjust_point_c(self) -> tuple[float, float]:
-        normal_line = self.edge_ab.normal_through_middle()
-        parallel_line = self.edge_ab.parallel_through(self.point_c)
-        return normal_line.point_crossing_with(parallel_line)
 
     @cached_property
     def edge_ab(self) -> Straight:
@@ -1303,15 +1303,15 @@ class Halfplane(MetaTriangle):
         """difference between point_c to the edge ab"""
         return self.edge_ab.difference_to(self.point_c)
 
-    def is_neighbour(self, halfplane: Self) -> bool:
+    def is_neighbour(self, other: Self) -> bool:
         """
         check if this and the other halfplane are neighbours /
         share one point
         """
-        if halfplane == self:
+        if other == self:
             return False
         for point in self.edge_ab.points:
-            if point in halfplane.edge_ab.points:
+            if point in other.edge_ab.points:
                 return True
         return False
 
