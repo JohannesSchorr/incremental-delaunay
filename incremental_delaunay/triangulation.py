@@ -173,6 +173,8 @@ class Delaunay:
                 continue
             neighbouring_triangles = self._neighboring_triangles(triangle)
             for neighboring_triangle in neighbouring_triangles:
+                if not isinstance(neighboring_triangle, Triangle):
+                    continue
                 not_shared_point = neighboring_triangle.not_shared_point(triangle)
                 if triangle.is_in_circum_circle(not_shared_point):
                     self.flip(triangle, neighboring_triangle)
