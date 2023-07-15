@@ -1274,8 +1274,8 @@ class Halfplane(MetaTriangle):
         return (
             f"Halfplane("
             f"point_a={self.point_a}, "
-            f"point_B={self.point_b}, "
-            f"point_C={self.point_c})"
+            f"point_b={self.point_b}, "
+            f"point_c={self.point_c})"
         )
 
     def _adjust_point_c(self) -> tuple[float, float]:
@@ -1341,9 +1341,18 @@ class Halfplane(MetaTriangle):
             self._last_point_position = point, PointPosition.EDGE_AB
             return PointPosition.EDGE_AB
 
-        point_difference_to_edge_ab = self.edge_ab.difference_to(point)
+        if self.edge_ab.is_on_line(point):
+            self._last_point_position = point, PointPosition.OUTSIDE
+            return PointPosition.OUTSIDE
 
-        if point_difference_to_edge_ab * self.point_c_difference_to_edge_ab > 0.0:
+        point_difference_to_edge_ab = self.edge_ab.difference_to(point)
+        sign_1 = point_difference_to_edge_ab / abs(point_difference_to_edge_ab)
+        sign_2 = self.point_c_difference_to_edge_ab / abs(
+            self.point_c_difference_to_edge_ab
+        )
+        side_factor = sign_1 * sign_2
+
+        if side_factor > 0.0:
             self._last_point_position = point, PointPosition.INSIDE
         else:
             self._last_point_position = point, PointPosition.OUTSIDE
