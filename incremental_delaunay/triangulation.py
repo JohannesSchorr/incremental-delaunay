@@ -855,13 +855,13 @@ class DelaunayTriangulationIncremental(Delaunay):
             else:
                 self._halfplanes.add(triangle)
 
-    def _neighboring_triangles(self, triangle: Triangle) -> set[Triangle]:
+    def _neighboring_triangles(self, triangle: MetaTriangle) -> set[MetaTriangle]:
         """
         determine the neighbouring triangles to the given ``triangle``
 
         Parameters
         ----------
-        triangle : Triangle
+        triangle : MetaTriangle
             triangle which neighbouring triangles are searched
 
         Returns
