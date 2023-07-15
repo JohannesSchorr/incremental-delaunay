@@ -568,7 +568,7 @@ class MetaTriangle(ABC):
 
         Parameters
         ----------
-        triangle : Triangle
+        triangle : MetaTriangle
             the other triangle
 
         Returns
@@ -588,7 +588,7 @@ class MetaTriangle(ABC):
 
         Parameters
         ----------
-        triangle : Triangle
+        triangle : MetaTriangle
             other triangle that shares an edge
 
         Returns
@@ -598,13 +598,13 @@ class MetaTriangle(ABC):
         """
         return tuple((point for point in self.points if point in triangle.points))
 
-    def not_shared_point(self, triangle: Self) -> tuple[float, float]:
+    def not_shared_point(self, triangle: Self | Straight) -> tuple[float, float]:
         """
         point that is not shared with the other ``triangle``
 
         Parameters
         ----------
-        triangle : Triangle
+        triangle : MetaTriangle | Straight
             other triangle
 
         Returns
