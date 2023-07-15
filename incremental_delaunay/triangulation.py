@@ -874,3 +874,25 @@ class DelaunayTriangulationIncremental(Delaunay):
             if neighbour.shares_edge_with(triangle) and neighbour != triangle:
                 neighbours.add(neighbour)
         return neighbours
+
+    def _print_triangles(self, do_split_types=False) -> None:
+        """
+        print all triangles
+
+        .. versionadded:: 0.1.2
+
+        Returns
+        -------
+        None
+        """
+        if do_split_types:
+            print("--- Triangles ---")
+            for triangle in self.triangles:
+                print(f"{triangle.points}, ")
+            print("--- Halfplanes ---")
+            for halfplane in self._halfplanes:
+                print(f"{halfplane.points}, ")
+        else:
+            for triangle in self._all_triangles():
+                print(f"{triangle.points}, ")
+        print("----")
