@@ -4,3 +4,4 @@
 
 - Improve the functionality of ``DelaunayTriangulationIncremntalWithBoundingBox`` as currently only poor results are achieved
 - add performance-improvements by implementing a tree-structure
+- include higher dimension (currently 2D)
