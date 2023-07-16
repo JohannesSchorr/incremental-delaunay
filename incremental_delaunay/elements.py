@@ -1265,6 +1265,13 @@ class Halfplane(MetaTriangle):
     Halfplane-Triangle
 
     .. versionadded:: 0.1.0
+
+    A half-plane is one side of a line that cuts a plane into two parts.
+    The here implemented half-plane is implemented like a triangle, but
+    the third point (=``point_c``) indicates only the side of the
+    half-plane.
+    Therefore, the line is given between the other two points
+    (``point_a`` and ``point_b``).
     """
 
     def __init__(
@@ -1273,6 +1280,16 @@ class Halfplane(MetaTriangle):
         point_b: tuple[float, float],
         point_c: tuple[float, float],
     ):
+        """
+        Parameters
+        ----------
+        point_a : tuple[float, float]
+            first point of the half-plane
+        point_b : tuple[float, float]
+            second point of the half-plane
+        point_c : tuple[float, float]
+            third point of the half-plane
+        """
         super().__init__(point_a, point_b, point_c)
 
     def __repr__(self):
