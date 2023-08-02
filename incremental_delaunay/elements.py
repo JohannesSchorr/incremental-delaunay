@@ -19,7 +19,7 @@ from dataclasses import dataclass
 from functools import cached_property
 from enum import Enum
 from abc import ABC, abstractmethod
-from math import isinf, fsum
+from math import isinf, fsum, pow
 
 from .matrices import Matrix, Vector, LinearEquationsSystem
 
@@ -174,7 +174,7 @@ class Straight:
     @cached_property
     def length(self) -> float:
         """distance between the points"""
-        return (self.vector[0] ** 2.0 + self.vector[1] ** 2.0) ** 0.5
+        return (pow(self.vector[0], 2.0) + pow(self.vector[1], 2.0)) ** 0.5
 
     def point_crossing_with(self, other: Self) -> tuple[float, float]:
         """find the point where this line is crossing with another"""
@@ -332,15 +332,15 @@ class Straight:
             point_2 = x_m, y_m - r
         else:
             intercept = self.normal_through_middle().intercept
-            a = 1.0 + slope**2
+            a = 1.0 + pow(slope, 2)
             b = -2.0 * x_m + 2.0 * (intercept - y_m) * slope
             p = b / a
-            c = (x_m**2.0 + (intercept - y_m) ** 2.0 - r**2.0) / a
+            c = (pow(x_m, 2.0) + pow((intercept - y_m), 2.0) - pow(r, 2.0)) / a
             q = c / a
-            x_1 = -p / 2.0 + ((p / 2.0) ** 2.0 - q) ** 0.5
+            x_1 = -p / 2.0 + (pow((p / 2.0), 2.0) - q) ** 0.5
             y_1 = self.normal_through_middle().compute_y(x_1)
             point_1 = x_1, y_1
-            x_2 = -p / 2.0 - ((p / 2.0) ** 2.0 - q) ** 0.5
+            x_2 = -p / 2.0 - (pow((p / 2.0), 2.0) - q) ** 0.5
             y_2 = self.normal_through_middle().compute_y(x_2)
             point_2 = x_2, y_2
         return point_1, point_2
@@ -539,7 +539,7 @@ class MetaTriangle(ABC):
         return (
             fsum(
                 (
-                    (position - self.circum_circle_centroid[index]) ** 2.0
+                    pow((position - self.circum_circle_centroid[index]), 2.0)
                     for index, position in enumerate(self.point_a)
                 )
             )
@@ -1109,7 +1109,7 @@ class Triangle(MetaTriangle):
         distance = (
             fsum(
                 (
-                    (position - self.circum_circle_centroid[index]) ** 2.0
+                    pow((position - self.circum_circle_centroid[index]), 2.0)
                     for index, position in enumerate(point)
                 )
             )
@@ -1125,7 +1125,7 @@ class Triangle(MetaTriangle):
         helper-function to method
         :py:meth:`~incremental_delaunay.elements.Triangle._is_in_circum_circle_by_determinant`
         """
-        return [point[0], point[1], point[0] ** 2.0 + point[1] ** 2.0, 1.0]
+        return [point[0], point[1], pow(point[0], 2.0) + pow(point[1], 2.0), 1.0]
 
     @cached_property
     def circum_circle_centroid(self) -> tuple[float, float]:
@@ -1170,7 +1170,10 @@ class Triangle(MetaTriangle):
                     (point_2[0] - point_1[0]) * (point_1[1] - point[1])
                     - (point_1[0] - point[0]) * (point_2[1] - point_1[1])
                 )
-                / ((point_2[0] - point_1[0]) ** 2.0 + (point_2[1] - point_1[1]) ** 2.0)
+                / (
+                    pow((point_2[0] - point_1[0]), 2.0)
+                    + pow((point_2[1] - point_1[1]), 2.0)
+                )
                 ** 0.5
             )
             lines.append({"distance": distance, "points": tuple([point_1, point_2])})
@@ -1517,8 +1520,8 @@ class Halfplane(MetaTriangle):
         return (
             0.5
             * (
-                (self.point_b[0] - self.point_a[0]) ** 2.0
-                + (self.point_b[1] - self.point_a[1]) ** 2
+                pow((self.point_b[0] - self.point_a[0]), 2.0)
+                + pow((self.point_b[1] - self.point_a[1]), 2)
             )
             ** 0.5
         )
