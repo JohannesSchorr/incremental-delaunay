@@ -1,3 +1,16 @@
+# Version 0.1.3
+
+## Fixed
+
+Parameters to test for are now
+- the correct number of triangles
+- the points of all triangle must match the input-points 
+
+## Refactor
+
+Makes now extensive use of methods provided by the [math](https://docs.python.org/3/library/math.html)-module
+provided by the standard-library
+
 # Version 0.1.2
 
 ## Fixed
@@ -11,9 +24,11 @@ at this positions.
 - more tests for the incremental Delaunay method with half-planes as borders
 - [To do list](https://github.com/JohannesSchorr/incremental-delaunay/blob/master/todo.md)
 
+
 # Version 0.1.1
 
 Fixed some issues with the incremental delaunay with half-planes as borders.
+
 
 # Version 0.1.0
 
