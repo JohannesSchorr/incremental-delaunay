@@ -7,6 +7,7 @@ implementation of basic matrix-operations
 """
 import operator
 from functools import reduce
+from math import pow, sqrt, fsum
 
 
 class Vector:
@@ -152,7 +153,7 @@ class Vector:
 
     def length(self) -> float:
         """sum of the entries of this vector"""
-        return sum(self.entries)
+        return fsum(self.entries)
 
     def replace(self, number: int, value: float, inplace: bool = False) -> None:
         """
@@ -254,7 +255,7 @@ class Vector:
         >>> vector_1.scalar_product(vector_2)
         3.0
         """
-        return sum((self.entries[index] * entry for index, entry in enumerate(vector)))
+        return fsum((self.entries[index] * entry for index, entry in enumerate(vector)))
 
     def multiply_scalar(self, scalar: float):
         """
@@ -276,7 +277,7 @@ class Vector:
         """
         Euclidian norm of the vector
         """
-        return (sum((entry * entry for entry in self._entries))) ** 0.5
+        return sqrt(fsum((pow(entry, 2.0) for entry in self._entries)))
 
     def mean(self) -> float:
         """
@@ -289,7 +290,7 @@ class Vector:
 
            \\overline{x} = \\frac{\\sum_{i=1}^{n} x_i}{n}
         """
-        return sum(self.entries) / len(self.entries)
+        return fsum(self.entries) / len(self.entries)
 
     def least_squares(self) -> float:
         """
@@ -305,7 +306,7 @@ class Vector:
         where :math:`\\overline{x}` is the mean of the values in the vector.
         """
         mean = self.mean()
-        return sum(((entry - mean) ** 2.0 for entry in self.entries))
+        return fsum((pow(entry - mean, 2.0) for entry in self.entries))
 
     @staticmethod
     def _check_is_vector(vector):
@@ -962,7 +963,7 @@ class Matrix:
                     continue
                 diagonal_value = r.entry(column, column)
                 position_value = r.entry(row, column)
-                rho = (diagonal_value**2.0 + position_value**2.0) ** 0.5
+                rho = sqrt(pow(diagonal_value, 2.0) + pow(position_value, 2.0))
                 rotation_matrix = Identity(self.row_number)
                 diagonal_value = diagonal_value / rho
                 position_value = position_value / rho
