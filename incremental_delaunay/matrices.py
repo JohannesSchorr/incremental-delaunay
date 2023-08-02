@@ -7,7 +7,7 @@ implementation of basic matrix-operations
 """
 import operator
 from functools import reduce
-from math import pow, sqrt, fsum
+from math import pow, sqrt, fsum, hypot
 
 
 class Vector:
@@ -277,7 +277,7 @@ class Vector:
         """
         Euclidian norm of the vector
         """
-        return sqrt(fsum((pow(entry, 2.0) for entry in self._entries)))
+        return hypot(self._entries)
 
     def mean(self) -> float:
         """
