@@ -19,7 +19,7 @@ from dataclasses import dataclass
 from functools import cached_property
 from enum import Enum
 from abc import ABC, abstractmethod
-from math import isinf
+from math import isinf, fsum
 
 from .matrices import Matrix, Vector, LinearEquationsSystem
 
@@ -537,7 +537,7 @@ class MetaTriangle(ABC):
     def circum_circle_radius(self) -> float:
         """radius of the circum-circle"""
         return (
-            sum(
+            fsum(
                 (
                     (position - self.circum_circle_centroid[index]) ** 2.0
                     for index, position in enumerate(self.point_a)
@@ -914,7 +914,7 @@ class Triangle(MetaTriangle):
         elif 0.0 < parameters[0] < 1.0 and parameters[1] == 0.0:
             self._last_point_position = point, PointPosition.EDGE_AB
         elif (
-            round(sum(parameters), 10) == 1.0
+            round(fsum(parameters), 10) == 1.0
             and 0.0 <= parameters[0] <= 1.0
             and 0.0 <= parameters[1] <= 1.0
         ):
@@ -922,7 +922,7 @@ class Triangle(MetaTriangle):
         elif (
             0.0 < parameters[0] < 1.0
             and 0.0 < parameters[1] < 1.0
-            and 0.0 < sum(parameters) < 1.0
+            and 0.0 < fsum(parameters) < 1.0
         ):
             self._last_point_position = point, PointPosition.INSIDE
         else:
@@ -1107,7 +1107,7 @@ class Triangle(MetaTriangle):
         comparing the circum_centroid of the circum-circle and its radius
         """
         distance = (
-            sum(
+            fsum(
                 (
                     (position - self.circum_circle_centroid[index]) ** 2.0
                     for index, position in enumerate(point)
@@ -1180,8 +1180,8 @@ class Triangle(MetaTriangle):
     def centroid(self) -> tuple[float, float]:
         """circum_centroid of the triangle"""
         points = [self.point_a, self.point_b, self.point_c]
-        x = sum((point[0] for point in points)) / 3.0
-        y = sum((point[1] for point in points)) / 3.0
+        x = fsum((point[0] for point in points)) / 3.0
+        y = fsum((point[1] for point in points)) / 3.0
         return x, y
 
     def scale(self, factor: float = 1.1) -> Self:
