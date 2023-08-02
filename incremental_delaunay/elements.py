@@ -19,7 +19,7 @@ from dataclasses import dataclass
 from functools import cached_property
 from enum import Enum
 from abc import ABC, abstractmethod
-from math import isinf, fsum, pow, sqrt
+from math import isinf, fsum, pow, sqrt, dist
 
 from .matrices import Matrix, Vector, LinearEquationsSystem
 
@@ -175,9 +175,7 @@ class Straight:
     @cached_property
     def length(self) -> float:
         """distance between the points"""
-        a_squared = pow(self.vector[0], 2.0)
-        b_squared = pow(self.vector[1], 2.0)
-        return sqrt((a_squared + b_squared))
+        return dist(self.point_1, self.point_2)
 
     def point_crossing_with(self, other: Self) -> tuple[float, float]:
         """find the point where this line is crossing with another"""
