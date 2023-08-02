@@ -91,6 +91,20 @@ class Delaunay:
         """triangles constructed from the points"""
         return self._triangles
 
+    def _triangle_points(self) -> set[tuple[float, float]]:
+        """
+        collect all points of the triangles
+
+        Returns
+        -------
+        set[tuple[float, float]]
+            points of all triangles
+        """
+        points = set()
+        for triangle in self.triangles:
+            points.update(set(triangle.points))
+        return points
+
     def _compare_input_and_triangle_points(self) -> None:
         """
         check if input-points and points in the triangles are the same
@@ -682,20 +696,6 @@ class DelaunayTriangulationIncremental(Delaunay):
 
     def __repr__(self) -> str:
         return f"DelaunayTriangulationIncremental(points={self._input_points})"
-
-    def _triangle_points(self) -> set[tuple[float, float]]:
-        """
-        collect all points of the triangles
-
-        Returns
-        -------
-        set[tuple[float, float]]
-            points of all triangles
-        """
-        points = set()
-        for triangle in self.triangles:
-            points.update(set(triangle.points))
-        return points
 
     def add(self, point: tuple[float, float]) -> None:
         """
