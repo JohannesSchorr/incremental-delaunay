@@ -19,7 +19,7 @@ from dataclasses import dataclass
 from functools import cached_property
 from enum import Enum
 from abc import ABC, abstractmethod
-from math import isinf, fsum, pow
+from math import isinf, fsum, pow, sqrt
 
 from .matrices import Matrix, Vector, LinearEquationsSystem
 
@@ -167,14 +167,17 @@ class Straight:
     @cached_property
     def middle_point(self) -> tuple[float, float]:
         """middle point of this straight"""
-        return 0.5 * (self.point_1[0] + self.point_2[0]), 0.5 * (
-            self.point_1[1] + self.point_2[1]
+        return (
+            0.5 * (self.point_1[0] + self.point_2[0]),
+            0.5 * (self.point_1[1] + self.point_2[1]),
         )
 
     @cached_property
     def length(self) -> float:
         """distance between the points"""
-        return (pow(self.vector[0], 2.0) + pow(self.vector[1], 2.0)) ** 0.5
+        a_squared = pow(self.vector[0], 2.0)
+        b_squared = pow(self.vector[1], 2.0)
+        return sqrt((a_squared + b_squared))
 
     def point_crossing_with(self, other: Self) -> tuple[float, float]:
         """find the point where this line is crossing with another"""
@@ -337,10 +340,10 @@ class Straight:
             p = b / a
             c = (pow(x_m, 2.0) + pow((intercept - y_m), 2.0) - pow(r, 2.0)) / a
             q = c / a
-            x_1 = -p / 2.0 + (pow((p / 2.0), 2.0) - q) ** 0.5
+            x_1 = -p / 2.0 + sqrt(pow((p / 2.0), 2.0) - q)
             y_1 = self.normal_through_middle().compute_y(x_1)
             point_1 = x_1, y_1
-            x_2 = -p / 2.0 - (pow((p / 2.0), 2.0) - q) ** 0.5
+            x_2 = -p / 2.0 - sqrt(pow((p / 2.0), 2.0) - q)
             y_2 = self.normal_through_middle().compute_y(x_2)
             point_2 = x_2, y_2
         return point_1, point_2
@@ -536,14 +539,14 @@ class MetaTriangle(ABC):
     @cached_property
     def circum_circle_radius(self) -> float:
         """radius of the circum-circle"""
-        return (
+        return sqrt(
             fsum(
                 (
                     pow((position - self.circum_circle_centroid[index]), 2.0)
                     for index, position in enumerate(self.point_a)
                 )
             )
-        ) ** 0.5
+        )
 
     @property
     @abstractmethod
@@ -1106,14 +1109,14 @@ class Triangle(MetaTriangle):
         check if the given ``point`` is in circum-circle of the triangle
         comparing the circum_centroid of the circum-circle and its radius
         """
-        distance = (
+        distance = sqrt(
             fsum(
                 (
                     pow((position - self.circum_circle_centroid[index]), 2.0)
                     for index, position in enumerate(point)
                 )
             )
-        ) ** 0.5
+        )
         if distance < self.circum_circle_radius:
             return True
         else:
@@ -1165,16 +1168,12 @@ class Triangle(MetaTriangle):
                 point_2 = self.points[0]
             else:
                 point_2 = self.points[index + 1]
-            distance = (
-                abs(
-                    (point_2[0] - point_1[0]) * (point_1[1] - point[1])
-                    - (point_1[0] - point[0]) * (point_2[1] - point_1[1])
-                )
-                / (
-                    pow((point_2[0] - point_1[0]), 2.0)
-                    + pow((point_2[1] - point_1[1]), 2.0)
-                )
-                ** 0.5
+            distance = abs(
+                (point_2[0] - point_1[0]) * (point_1[1] - point[1])
+                - (point_1[0] - point[0]) * (point_2[1] - point_1[1])
+            ) / sqrt(
+                pow((point_2[0] - point_1[0]), 2.0)
+                + pow((point_2[1] - point_1[1]), 2.0)
             )
             lines.append({"distance": distance, "points": tuple([point_1, point_2])})
         return min(lines, key=operator.itemgetter("distance"))["points"]
@@ -1517,13 +1516,9 @@ class Halfplane(MetaTriangle):
     @cached_property
     def circum_circle_radius(self) -> float:
         """radius of the circum-circle"""
-        return (
-            0.5
-            * (
-                pow((self.point_b[0] - self.point_a[0]), 2.0)
-                + pow((self.point_b[1] - self.point_a[1]), 2)
-            )
-            ** 0.5
+        return 0.5 * sqrt(
+            pow((self.point_b[0] - self.point_a[0]), 2.0)
+            + pow((self.point_b[1] - self.point_a[1]), 2)
         )
 
     def is_on_same_side_like(self, other: Self) -> bool:
