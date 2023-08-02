@@ -113,8 +113,6 @@ class TestDelaunayTriangulationIncrementalMomentStrainDifference(TestCase):
 
     def test_delaunay(self):
         delaunay = DelaunayTriangulationIncremental(self.points)
-        for triangle in delaunay.triangles:
-            print(f"{triangle.points}, ")
         self.assertEqual(delaunay._triangle_points(), set(self.points))
 
 

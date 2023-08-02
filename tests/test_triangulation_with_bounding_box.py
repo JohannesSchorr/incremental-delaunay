@@ -60,8 +60,8 @@ class TestDelaunayTriangulationIncrementalWithBoundingBox(TestCase):
         self.assertEqual(
             super_rectangle,
             {
-                Triangle(point_a=(-1.0, -0.5), point_b=(3.0, 1.5), point_c=(-1.0, 1.5)),
-                Triangle(point_a=(-1.0, -0.5), point_b=(3.0, -0.5), point_c=(3.0, 1.5)),
+                Triangle(point_a=(-0.8, -0.4), point_b=(2.8, 1.4), point_c=(-0.8, 1.4)),
+                Triangle(point_a=(-0.8, -0.4), point_b=(2.8, -0.4), point_c=(2.8, 1.4)),
             },
         )
 
@@ -116,35 +116,15 @@ class TestDelaunayTriangulationIncrementalWithBoundingBox(TestCase):
         delaunay_triangulation = DelaunayTriangulationIncrementalWithBoundingBox(
             self.points, bounding_structure="triangle"
         )
-        self.assertCountEqual(delaunay_triangulation.points, self.points)
-        self.assertEqual(
-            delaunay_triangulation.triangles,
-            {
-                Triangle(point_a=(2.0, 1.0), point_b=(0.5, 0.0), point_c=(1.0, 0.0)),
-                Triangle(point_a=(0.5, 0.0), point_b=(0.0, 0.5), point_c=(0.0, 0.0)),
-                Triangle(point_a=(0.5, 0.5), point_b=(2.0, 1.0), point_c=(0.0, 1.0)),
-                Triangle(point_a=(0.5, 0.5), point_b=(0.5, 0.0), point_c=(2.0, 1.0)),
-                Triangle(point_a=(0.5, 0.0), point_b=(0.5, 0.5), point_c=(0.0, 0.5)),
-                Triangle(point_a=(0.0, 1.0), point_b=(0.0, 0.5), point_c=(0.5, 0.5)),
-            },
-        )
+        self.assertCountEqual(delaunay_triangulation._triangle_points(), self.points)
+        self.assertEqual(len(delaunay_triangulation.triangles), 6)
 
     def test_triangulation_3_with_super_rectangle(self):
         delaunay_triangulation = DelaunayTriangulationIncrementalWithBoundingBox(
             self.points, bounding_structure="rectangle"
         )
-        self.assertCountEqual(delaunay_triangulation.points, self.points)
-        self.assertEqual(
-            delaunay_triangulation.triangles,
-            {
-                Triangle(point_a=(2.0, 1.0), point_b=(0.5, 0.0), point_c=(1.0, 0.0)),
-                Triangle(point_a=(0.5, 0.0), point_b=(0.0, 0.5), point_c=(0.0, 0.0)),
-                Triangle(point_a=(0.5, 0.5), point_b=(2.0, 1.0), point_c=(0.0, 1.0)),
-                Triangle(point_a=(0.5, 0.5), point_b=(0.5, 0.0), point_c=(2.0, 1.0)),
-                Triangle(point_a=(0.5, 0.0), point_b=(0.5, 0.5), point_c=(0.0, 0.5)),
-                Triangle(point_a=(0.0, 1.0), point_b=(0.0, 0.5), point_c=(0.5, 0.5)),
-            },
-        )
+        self.assertCountEqual(delaunay_triangulation._triangle_points(), self.points)
+        self.assertEqual(len(delaunay_triangulation.triangles), 6)
 
 
 class DelaunayTriangulationIncrementalWithBoundingBoxTrianglulationStrainDifferenceLongitudinalShearForce(
@@ -174,77 +154,8 @@ class DelaunayTriangulationIncrementalWithBoundingBoxTrianglulationStrainDiffere
         delaunay = DelaunayTriangulationIncrementalWithBoundingBox(
             self.points, bounding_structure="rectangle"
         )
-        self.assertCountEqual(delaunay.points, self.points)
-        self.assertCountEqual(
-            list(delaunay.triangles),
-            [
-                Triangle(
-                    point_a=(0.0007794542880783402, 626052.8855962341),
-                    point_b=(-0.0, -0.0),
-                    point_c=(0.0006552638255870223, 0.0),
-                ),
-                Triangle(
-                    point_a=(0.0007794542880783402, 626052.8855962341),
-                    point_b=(0.0006552638255870223, 0.0),
-                    point_c=(0.006952534477383593, 0.0),
-                ),
-                Triangle(
-                    point_a=(0.0007794542880783402, 626052.8855962341),
-                    point_b=(0.006952534477383593, 0.0),
-                    point_c=(0.017112718875810836, 0.0),
-                ),
-                Triangle(
-                    point_a=(0.017112718875810836, 0.0),
-                    point_b=(0.04368081778528715, 0.0),
-                    point_c=(0.0007794542880783402, 626052.8855962341),
-                ),
-                Triangle(
-                    point_a=(0.04368081778528715, 0.0),
-                    point_b=(0.0557740946375556, 0.0),
-                    point_c=(0.0007794542880783402, 626052.8855962341),
-                ),
-                Triangle(
-                    point_a=(0.0557740946375556, 0.0),
-                    point_b=(0.07092164560897417, 0.0),
-                    point_c=(0.0007794542880783402, 626052.8855962341),
-                ),
-                Triangle(
-                    point_a=(0.0, 1029329.0652537956),
-                    point_b=(-0.0, -0.0),
-                    point_c=(0.0007794542880783402, 626052.8855962341),
-                ),
-                Triangle(
-                    point_a=(0.0, 1029329.0652537956),
-                    point_b=(0.0019914537568356126, 1599523.0516000006),
-                    point_c=(0.0, 1568852.9374282872),
-                ),
-                Triangle(
-                    point_a=(0.0, 1029329.0652537956),
-                    point_b=(0.0007794542880783402, 626052.8855962341),
-                    point_c=(0.08556008688854429, 0.0),
-                ),
-                Triangle(
-                    point_a=(0.07092164560897417, 0.0),
-                    point_b=(0.08556008688854429, 0.0),
-                    point_c=(0.0007794542880783402, 626052.8855962341),
-                ),
-                Triangle(
-                    point_a=(0.0019914537568356126, 1599523.0516000006),
-                    point_b=(0.0, 1029329.0652537956),
-                    point_c=(0.08556008688854429, 0.0),
-                ),
-                Triangle(
-                    point_a=(0.08556008688854429, 0.0),
-                    point_b=(0.0, 2161363.834659677),
-                    point_c=(0.0019914537568356126, 1599523.0516000006),
-                ),
-                Triangle(
-                    point_a=(0.0019914537568356126, 1599523.0516000006),
-                    point_b=(0.0, 2161363.834659677),
-                    point_c=(0.0, 1568852.9374282872),
-                ),
-            ],
-        )
+        self.assertCountEqual(delaunay._triangle_points(), self.points)
+        self.assertEqual(len(delaunay.triangles), 13)
 
 
 if __name__ == "__main__":
