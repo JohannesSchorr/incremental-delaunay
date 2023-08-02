@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from functools import cached_property
 from enum import Enum
 from abc import ABC, abstractmethod
+from math import isinf
 
 from .matrices import Matrix, Vector, LinearEquationsSystem
 
@@ -148,7 +149,7 @@ class Straight:
     @cached_property
     def intercept(self) -> float:
         """intercept of the line"""
-        if self.slope == float("inf"):
+        if isinf(self.slope):
             return float("inf")
         else:
             return self.point_1[1] - self.slope * self.point_1[0]
@@ -158,7 +159,7 @@ class Straight:
         """slope of the normal to this line"""
         if self.slope == 0.0:
             return float("inf")
-        elif self.slope == float("inf"):
+        elif isinf(self.slope):
             return 0.0
         else:
             return (-1.0) / self.slope
@@ -182,10 +183,10 @@ class Straight:
                 f"Lines with identical slope ({self.slope}) can not cross each other,\n"
                 f"{self},\n{other}"
             )
-        if self.slope == float("inf"):
+        if isinf(self.slope):
             x_point = self.point_1[0]
             y_point = other.compute_y(x_point)
-        elif other.slope == float("inf"):
+        elif isinf(other.slope):
             x_point = other.point_1[0]
             y_point = self.compute_y(x_point)
         else:
@@ -195,7 +196,7 @@ class Straight:
 
     def is_on_line(self, point: tuple[float, float]):
         """check if point is on this straight"""
-        if self.slope == float("inf"):
+        if isinf(self.slope):
             if point[0] == self.point_1[0]:
                 return True
             else:
@@ -210,7 +211,7 @@ class Straight:
         if not self.is_on_line(point):
             return False
 
-        if self.slope == float("inf"):
+        if isinf(self.slope):
             if (
                 min(self.point_1[1], self.point_2[1])
                 <= point[1]
@@ -240,7 +241,7 @@ class Straight:
 
     def normal_through(self, point: tuple[float, float]) -> Self:
         """find the normal to this Straight through the given ``point``"""
-        if self.normal_slope == float("inf"):
+        if isinf(self.normal_slope):
             return Straight(point, (point[0], point[1] + 1.0))
         else:
             # y = m*x + c => c = y - m*x
@@ -257,7 +258,7 @@ class Straight:
 
     def parallel_through(self, point: tuple[float, float]) -> Self:
         """find a parallel line through the given ``point``"""
-        if self.slope == float("inf"):
+        if isinf(self.slope):
             return Straight(point, (point[0], point[1] + 1.0))
         else:
             x_1, y_1 = point
@@ -289,7 +290,7 @@ class Straight:
         float
             difference between the point and the edge in vertical direction
         """
-        if self.slope == float("inf"):
+        if isinf(self.slope):
             return point[0] - self.point_1[0]
         else:
             return point[1] - self.compute_y(point[0])
@@ -326,7 +327,7 @@ class Straight:
         r = 0.5 * self.length
         x_m, y_m = self.middle_point
         slope = self.normal_through_middle().slope
-        if slope == float("inf"):
+        if isinf(slope):
             point_1 = x_m, y_m + r
             point_2 = x_m, y_m - r
         else:
